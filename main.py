@@ -1,11 +1,10 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.database import engine, Base
 from app.logging_config import logger
 from app.api.v1.router import router as api_v1_router
-from app.core.config import settings
 
 
 async def init_models():
@@ -32,15 +31,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    if settings.environment == "development":
-        client_host = request.client.host
-    else:
-        client_host = request.headers.get("X-Forwarded-For", request.client.host)
-    logger.info(f"Incoming request: {request.method} {request.url} {client_host}")
-    response = await call_next(request)
-    logger.info(f"Response status: {response.status_code}")
-    return response

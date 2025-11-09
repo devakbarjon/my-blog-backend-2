@@ -1,3 +1,4 @@
+from typing import Optional
 import uuid
 from fastapi import APIRouter, Depends, File, Header, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -44,7 +45,7 @@ async def get_post(
 async def admin_create_post(
      post: PostIn, 
      session: AsyncSession = Depends(get_db),
-     image: UploadFile = File(...),
+     image: Optional[UploadFile] = File(None),
     ):
         if post.secret_word != settings.secret_word:
             return ErrorResponse(

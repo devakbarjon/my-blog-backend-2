@@ -38,7 +38,7 @@ async def get_post(
 
 
 @router.post("/", response_model=PostOut | ErrorResponse)
-async def create_post(post: PostIn, session: AsyncSession = Depends(get_db)):
+async def admin_create_post(post: PostIn, session: AsyncSession = Depends(get_db)):
         if post.secret_word != settings.secret_word:
             return ErrorResponse(
                 code="unauthorized",

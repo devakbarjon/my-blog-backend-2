@@ -7,7 +7,9 @@ from app.models.post import Post
 
 async def get_all_posts(session: AsyncSession) -> list[Post]:
     result = await session.execute(
-        select(Post).order_by(Post.id)
+        select(Post)
+        .order_by(Post.id)
+        .options(selectinload(Post.comments))
     )
     posts = result.scalars().all()
     return posts

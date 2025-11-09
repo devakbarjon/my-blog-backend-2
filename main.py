@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.database import engine, Base
-from app.logging_config import logger
+from app.utils.logging_config import logger
 from app.api.v1.router import router as api_v1_router
 
 

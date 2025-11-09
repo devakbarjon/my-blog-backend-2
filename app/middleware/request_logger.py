@@ -1,5 +1,5 @@
 from fastapi import Request
-from app.logging_config import logger
+from app.utils.logging_config import logger
 from app.core.config import settings
 from main import app
 

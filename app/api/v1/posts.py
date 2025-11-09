@@ -4,6 +4,7 @@ from app.db.database import get_db
 from app.db.functions.posts import get_all_posts, get_post_by_id
 from app.models.schemas.errors import ErrorResponse
 from app.models.schemas.posts import PostListResponse, PostIn, PostOut
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -31,4 +32,8 @@ async def get_post(post_id: int, session: AsyncSession = Depends(get_db)):
 
 @router.post("/", response_model=PostOut | ErrorResponse)
 async def create_post(post: PostIn, session: AsyncSession = Depends(get_db)):
-    ...
+        if post.secret_word != settings.secret_word:
+            return ErrorResponse(
+                code="unauthorized",
+                message="Invalid secret word provided."
+            )

@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     app_name: str = "My Blog 2.0"
     database_url: str
     environment: str = ENV
+    secret_word: str
 
     class Config:
         env_file = f".env.{ENV}"  # loads .env.development or .env.production

@@ -11,7 +11,9 @@ class PostIn(BaseModel):
     title: str
     body: str
     tags: list[str] = Field(default_factory=list)
-    image: str | None = None
+    image: bool = False # True if image exists, else False
+    read_time: int = 0
+    secret_word: str
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -22,6 +24,7 @@ class PostOut(BaseModel):
     body: str
     tags: list[str] = Field(default_factory=list)
     image: str | None = None
+    read_time: int
     comments: List[CommentOut] = []
     created_at: str
 

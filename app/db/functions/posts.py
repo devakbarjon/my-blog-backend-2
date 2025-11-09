@@ -16,7 +16,7 @@ async def get_all_posts(session: AsyncSession) -> list[Post]:
 
 async def get_post_by_id(session: AsyncSession, post_id: int) -> Post | None:
     result = await session.execute(
-        select(Post).where(Post.id == post_id)
+        select(Post).where(Post.id == post_id).options(selectinload(Post.comments))
     )
     return result.scalars().first()
 

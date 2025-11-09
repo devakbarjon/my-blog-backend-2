@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Depends, Header
+import uuid
+from fastapi import APIRouter, Depends, File, Header, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.db.functions.posts import get_all_posts, get_post_by_id, create_post, increment_post_views
 from app.models.schemas.errors import ErrorResponse
 from app.models.schemas.posts import PostListResponse, PostIn, PostOut
 from app.core.config import settings
+from app.core.dirs import IMAGES_DIR
+import shutil
 
 router = APIRouter()
 
@@ -38,7 +41,11 @@ async def get_post(
 
 
 @router.post("/", response_model=PostOut | ErrorResponse)
-async def admin_create_post(post: PostIn, session: AsyncSession = Depends(get_db)):
+async def admin_create_post(
+     post: PostIn, 
+     session: AsyncSession = Depends(get_db),
+     image: UploadFile = File(...),
+    ):
         if post.secret_word != settings.secret_word:
             return ErrorResponse(
                 code="unauthorized",
@@ -47,6 +54,16 @@ async def admin_create_post(post: PostIn, session: AsyncSession = Depends(get_db
         
         post_data = post.model_dump()
         post_data.pop("secret_word", None)  # Remove secret_word before creating the post
+
+        image_filename = None
+        if post_data["image"] is True and image:
+            unique_name = f"{uuid.uuid4().hex}_{image.filename}"
+            image_path = IMAGES_DIR / unique_name
+            with open(image_path, "wb") as buffer:
+                shutil.copyfileobj(image.file, buffer)
+            image_filename = unique_name
+
+        post_data["image"] = image_filename
 
         new_post = await create_post(session=session, **post_data)
 

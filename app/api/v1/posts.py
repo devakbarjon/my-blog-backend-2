@@ -1,6 +1,6 @@
 from typing import Optional
 import uuid
-from fastapi import APIRouter, Depends, File, Header, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Header, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.db.functions.posts import get_all_posts, get_post_by_id, create_post, increment_post_views
@@ -43,10 +43,15 @@ async def get_post(
 
 @router.post("/", response_model=PostOut | ErrorResponse)
 async def admin_create_post(
-     post: PostIn, 
+     post_form: str = Form(...), 
      session: AsyncSession = Depends(get_db),
      image: Optional[UploadFile] = File(None),
     ):
+        try:
+            post = PostIn.model_validate_json(post_form)
+        except Exception:
+            return ErrorResponse(code="invalid_data", message="Invalid post data")
+        
         if post.secret_word != settings.secret_word:
             return ErrorResponse(
                 code="unauthorized",

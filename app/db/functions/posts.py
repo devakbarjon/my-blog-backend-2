@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import selectinload
 
 from app.models.post import Post
 
@@ -21,13 +22,24 @@ async def get_post_by_id(session: AsyncSession, post_id: int) -> Post | None:
 async def create_post(session: AsyncSession, **kwargs) -> Post:
     new_post = Post(**kwargs)
     session.add(new_post)
+
     try:
         await session.commit()
         await session.refresh(new_post)
+
+        result = await session.execute(
+            select(Post)
+            .options(selectinload(Post.comments))
+            .where(Post.id == new_post.id)
+        )
+        
+        post_with_comments = result.scalars().first()
+
+        return post_with_comments
+
     except SQLAlchemyError:
         await session.rollback()
         raise
-    return new_post
 
 async def increment_post_views(session: AsyncSession, post_id: int, viewer_id) -> None:
     post = await get_post_by_id(session, post_id)

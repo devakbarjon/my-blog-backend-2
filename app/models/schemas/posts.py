@@ -27,7 +27,7 @@ class PostOut(BaseModel):
     read_time: int
     comments: List[CommentOut] = []
     views: int
-    created_at: str
+    created_at: datetime
 
     @field_serializer("created_at")
     def serialize_created_at(self, value: datetime) -> str:

@@ -17,6 +17,8 @@ class Post(Base):
     tags = Column(ARRAY(Text), default=list)
     image = Column(Text, nullable=True)
     read_time = Column(BigInteger, default=0) # in minutes
+    views = Column(BigInteger, default=0)
+    viewers = Column(ARRAY(Text), default=list)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 

@@ -26,6 +26,7 @@ class PostOut(BaseModel):
     image: str | None = None
     read_time: int
     comments: List[CommentOut] = []
+    views: int
     created_at: str
 
     @field_serializer("created_at")

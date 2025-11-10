@@ -10,8 +10,8 @@ class CommentIn(BaseModel):
 
 class CommentOut(BaseModel):
     id: int
-    name: str
-    body: str
+    author: str
+    content: str
     post_id: int
     created_at: datetime
 

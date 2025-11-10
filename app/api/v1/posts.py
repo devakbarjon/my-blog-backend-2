@@ -17,7 +17,7 @@ router = APIRouter()
 async def get_posts(session: AsyncSession = Depends(get_db)):
     posts = await get_all_posts(session=session)
     
-    return PostListResponse.model_validate(posts)
+    return PostListResponse(posts=posts)
 
 
 

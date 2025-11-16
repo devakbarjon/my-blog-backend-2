@@ -8,12 +8,14 @@ from app.models.schemas.errors import ErrorResponse
 from app.models.schemas.posts import PostListResponse, PostIn, PostOut
 from app.core.config import settings
 from app.core.dirs import IMAGES_DIR
+from app.utils.rate_limit import limiter
 import shutil
 
 router = APIRouter()
 
 
 @router.get("/", response_model=PostListResponse)
+@limiter.limit("100/minute")
 async def get_posts(session: AsyncSession = Depends(get_db)):
     posts = await get_all_posts(session=session)
     
@@ -22,6 +24,7 @@ async def get_posts(session: AsyncSession = Depends(get_db)):
 
 
 @router.get("/{post_id}", response_model=PostOut | ErrorResponse)
+@limiter.limit("100/minute")
 async def get_post(
      post_id: int, 
      viewer_id: str | None = Header(None), 
@@ -42,6 +45,7 @@ async def get_post(
 
 
 @router.post("/", response_model=PostOut | ErrorResponse)
+@limiter.limit("50/minute")
 async def admin_create_post(
      post_form: str = Form(...), 
      session: AsyncSession = Depends(get_db),

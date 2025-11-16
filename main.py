@@ -5,8 +5,9 @@ from fastapi.staticfiles import StaticFiles
 
 from app.db.database import engine, Base
 from app.utils.logging_config import logger
-from app.api.v1.router import router as api_v1_router
+from app.api.v1.router import router as api_router
 from app.core.dirs import IMAGES_DIR
+from app.utils.rate_limit import limiter, add_rate_limit_exception_handler
 
 
 async def init_models():
@@ -22,9 +23,18 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down...")
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    title="My Blog 2.0 API",
+    description="Backend API для личного блога",
+    version="1.0.0",
+    lifespan=lifespan,
+)
 
-app.include_router(api_v1_router, prefix="/api/v1")
+app.state.limiter = limiter
+
+add_rate_limit_exception_handler(app)
+
+app.include_router(api_router, prefix="/api/v1")
 
 app.mount("/public/images", StaticFiles(directory=IMAGES_DIR), name="images")
 

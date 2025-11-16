@@ -4,11 +4,13 @@ from app.db.database import get_db
 from app.db.functions.comments import save_comment
 from app.models.schemas.comments import CommentIn, CommentOut
 from app.models.schemas.errors import ErrorResponse
+from app.utils.rate_limit import limiter
 
 router = APIRouter()
 
 
 @router.post("/", response_model=CommentOut)
+@limiter.limit("60/minute")
 async def create_comment(comment: CommentIn, session: AsyncSession = Depends(get_db)):
 
     new_comment = await save_comment(
